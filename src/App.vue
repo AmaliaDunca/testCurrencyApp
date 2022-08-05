@@ -4,23 +4,48 @@
     <div class="search-table">
       <div class="form-outline">
   <input v-model="currencyValue"
-      @keydown.enter="search(currencyValue)" type="search" id="form1" class="form-control" placeholder="Type query" aria-label="Search" />
+      type="search" id="form1" class="form-control" placeholder="Type query" aria-label="Search" />
 </div>
     </div>
     <div style="margin-top100px"> 
       <table class="table">
   <thead>
     <tr>
-      <th scope="col">USD</th>
+      <th scope="col">#</th>
+      <th @click="sortNumbers()" scope="col">USD</th>
       <th scope="col">Euro</th>
       <th scope="col">Pounds</th>
+
     </tr>
   </thead>
   <tbody>
-    <tr v-for="(value,index) in allCurencys" :key="index">
-
+     <tr >
+        <th>Avrige</th>
+      <th scope="row">
+       <td>{{getAvrigeNumber(usd)}}</td>
+      </th>
+      <th scope="row">
+         <td>{{getAvrigeNumber(euro)}}</td>
+      </th>
+       <th scope="row">
+         <td>{{getAvrigeNumber(pounds)}}</td>
+      </th>
+    </tr> 
+ <tr >
+        <th>Median</th>
+      <th scope="row">
+       <td>{{getMedianNumber(usd)}}</td>
+      </th>
+      <th scope="row">
+         <td>{{getMedianNumber(euro)}}</td>
+      </th>
+       <th scope="row">
+         <td>{{getMedianNumber(pounds)}}</td>
+      </th>
+    </tr> 
+    <tr v-for="(value,index) in filteredList" :key="index">
+        <th>{{index}}</th>
       <th v-for="(el, index) in value" :key='index' scope="row">
-          
        <td>{{el}}</td>
       </th>
     </tr> 
@@ -52,6 +77,7 @@ export default {
       //table
       allCurencys:[],
       currencyValue:null,
+      sortUsd:false,
       //chart
       chartType: "Column",
       seriesColor: "#6fcd98",
@@ -158,11 +184,67 @@ export default {
     };
   },
   methods: {
-    search(arg){
-        console.log( this.allCurencys[0][0].toString().includes(arg.toString()))
-
+  sortNumbers(){
+    this.sortUsd = !this.sortUsd
+  //  this.usd= currency.sort()
+  //  this.filteredList = [this.usd, this.euro, this.pounds]
+   
+   console.log(this.usd)
+  },
+  sumNumber(array) {
+  var total = 0;
+  for (var i=0; i<array.length; i++) {
+    total += array[i];
       }
+  return total;
+  },
+
+   getAvrigeNumber (array) {
+      var arraySum = this.sumNumber(array);
+      return arraySum / array.length;
+    },
+
+   getMedianNumber (array){
+      array = array.sort();
+  if (array.length % 2 === 0) { // array with even number elements
+    return (array[array.length/2] + array[(array.length / 2) - 1]) / 2;
+  }
+  else {
+    return array[(array.length - 1) / 2]; // array with odd number elements
+  }
+  
+    }
  
+  },
+  computed:{
+    filteredList(){
+      if(this.sortUsd){
+        //  this.usd = [...this.usd].sort()
+        // console.log(this.usd.array())
+        // return [...this.usd.sort(), ...this.euro, ...this.pounds]
+      }
+      if (!this.sortUsd) {
+         return this.allCurencys
+      }
+      if(!this.currencyValue){
+        return this.allCurencys
+      }
+      else{
+         return this.allCurencys.filter(ele => {
+           if(
+             ele[0].toString().includes(this.currencyValue.toString()) || 
+             ele[1].toString().includes(this.currencyValue.toString()) || 
+             ele[2].toString().includes(this.currencyValue.toString())){
+               return true
+           }
+         // all numbers is a row must iclude
+        // ele.forEach(num =>{
+        //  return num.toString().includes(this.currencyValue.toString())
+        // })
+      });
+    }
+      }
+     
   },
   async created() {
     const socketProtocol =
@@ -181,28 +263,11 @@ export default {
       this.chartOptions.series[0].data = this.usd
       this.chartOptions.series[1].data = this.euro
       this.chartOptions.series[2].data = this.pounds
-      //  if(this.allCurencys.length !== 0){
-      //    [...this.allCurencys].forEach(element => {
-      //      element.forEach(i =>{
-      //        console.log(i)
-      //         if(i !== usd  ){
-      //             return 
-      //      }
-      //      })
-      //     //  if( element !== usd ){
-
-      //     //  }
-      //    });
-      //   //  this.allCurencys.push([...this.usd,...this.euro,...this.pounds])
-      //  }else{
-         this.allCurencys.push([usd, euro , pounds])
-         
-      //  }
-      // this.allCurencys = [ usd, euro, pounds]
-      console.log(this.allCurencys)
-      // console.log(usd, "usd");
-      // console.log(euro, "euro");
-      // console.log(pounds, "pound");
+     
+      this.allCurencys.push([usd, euro , pounds])
+   
+      // console.log(this.allCurencys)
+  
     });
   },
 };
@@ -212,4 +277,7 @@ export default {
 .search-table{
   margin-top:100px;
 }
+.table td, .table th {
+    vertical-align: baseline !important;
+     }
 </style>

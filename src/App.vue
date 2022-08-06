@@ -12,7 +12,9 @@
   <thead>
     <tr>
       <th scope="col">#</th>
-      <th @click="sortNumbers()" scope="col">USD</th>
+      <th v-if="!sortUsd" @click="sortNumbersUsd()" scope="col">USD</th>
+      <th v-if="sortUsd" @click="sortNumbersUsd()" scope="col">USD - sorted</th>
+
       <th scope="col">Euro</th>
       <th scope="col">Pounds</th>
 
@@ -184,12 +186,8 @@ export default {
     };
   },
   methods: {
-  sortNumbers(){
+  sortNumbersUsd(){
     this.sortUsd = !this.sortUsd
-  //  this.usd= currency.sort()
-  //  this.filteredList = [this.usd, this.euro, this.pounds]
-   
-   console.log(this.usd)
   },
   sumNumber(array) {
   var total = 0;
@@ -218,14 +216,14 @@ export default {
   },
   computed:{
     filteredList(){
-      if(this.sortUsd){
-        //  this.usd = [...this.usd].sort()
-        // console.log(this.usd.array())
-        // return [...this.usd.sort(), ...this.euro, ...this.pounds]
-      }
-      if (!this.sortUsd) {
-         return this.allCurencys
-      }
+      // if(this.sortUsd){
+      //  console.log((JSON.parse(JSON.stringify(this.usd))).sort())
+      //    return [  [(JSON.parse(JSON.stringify(this.usd))).sort(), this.euro, this.pounds]]
+        
+      // }
+      // if (!this.sortUsd) {
+      //    return this.allCurencys
+      // }
       if(!this.currencyValue){
         return this.allCurencys
       }
@@ -237,7 +235,7 @@ export default {
              ele[2].toString().includes(this.currencyValue.toString())){
                return true
            }
-         // all numbers is a row must iclude
+         // all numbers is a row must iclude the search
         // ele.forEach(num =>{
         //  return num.toString().includes(this.currencyValue.toString())
         // })
@@ -256,9 +254,10 @@ export default {
 
     this.socket.on("message", (usd, euro, pounds) => {
       
-      this.usd.push(usd);
+      this.usd.push( usd);
       this.euro.push(euro);
       this.pounds.push(pounds);
+      // console.log(this.usd)
 
       this.chartOptions.series[0].data = this.usd
       this.chartOptions.series[1].data = this.euro
